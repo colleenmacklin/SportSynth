@@ -58,7 +58,7 @@ namespace UnityEngine.AzureSky
             // If the m_azureCoreSystem is still null, get the first game object in the scene using the AzureCoreSystem component
             if (m_azureCoreSystem == null)
             {
-                m_azureCoreSystem = Object.FindFirstObjectByType<AzureCoreSystem>();
+                m_azureCoreSystem = FindObjectOfType<AzureCoreSystem>();
             }
 
             // If the m_azureCoreSystem is still null, just give up

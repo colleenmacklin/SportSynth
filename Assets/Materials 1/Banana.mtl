@@ -1,0 +1,16 @@
+newmtl Mat_Standard
+illum 7
+Kd 1 0 0
+adobe_interior_color 0 0 0
+Ni 1.6
+adobe_density 0
+Tr 1
+d 0
+Ka 0 0 0
+Ke 0 0 0
+Pm 0
+adobe_translucence 0
+Pr 1
+Ns 16
+Ks 1 1 1
+adobe_glow 0
