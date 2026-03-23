@@ -42,7 +42,32 @@ public void SetAttack(float v)  => envelope.attack  = Mathf.Clamp(v, 0.001f, 5f)
 public void SetDecay(float v)   => envelope.decay   = Mathf.Clamp(v, 0.001f, 5f);
 public void SetSustain(float v) => envelope.sustain = Mathf.Clamp01(v);
 public void SetRelease(float v) => envelope.release = Mathf.Clamp(v, 0.001f, 5f);
+private float _savedAttack;
+private float _savedDecay;
+private float _savedSustain;
+private float _savedRelease;
+private bool  _adsrSaved = false;
 
+public List<LFO> GetLFOs() => lfos;
+public void SaveADSR()
+{
+    if (_adsrSaved) return; // don't overwrite a previous save
+    _savedAttack  = envelope.attack;
+    _savedDecay   = envelope.decay;
+    _savedSustain = envelope.sustain;
+    _savedRelease = envelope.release;
+    _adsrSaved    = true;
+}
+
+public void RestoreADSR()
+{
+    if (!_adsrSaved) return;
+    envelope.attack  = _savedAttack;
+    envelope.decay   = _savedDecay;
+    envelope.sustain = _savedSustain;
+    envelope.release = _savedRelease;
+    _adsrSaved       = false;
+}
 private delegate void BurstVoiceDelegate(
     ref SynthBuffer buffer,
     ref SynthVoice voice,

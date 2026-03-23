@@ -22,6 +22,7 @@ public class soundCollision : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
+        Debug.Log("collision on: "+this.name);
         float impactForce = collision.relativeVelocity.magnitude;
 
         if (collisionSound != null && impactForce >= minImpactForce)
