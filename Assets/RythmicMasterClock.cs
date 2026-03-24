@@ -7,16 +7,19 @@ namespace Synthic
     {
         public static RhythmicMasterClock Instance { get; private set; }
 
-        [SerializeField] private float bpm = 120f;
+        [SerializeField] private float     bpm       = 120f;
         [SerializeField] private Sequencer sequencer;
 
-        private float _masterTimer = 0f;
-        private List<RhythmicBounceSphere> _spheres = new();
+        private float _masterTimer    = 0f;
+        private float _quarterTimer   = 0f;
+        private bool  _lastQuarterFired = false;
 
-        public float BPM         => bpm;
-        public float MasterTimer => _masterTimer;
-public float BeatDuration     => 60f / bpm;
-public float SixteenthDuration => 60f / (bpm * 4f); // matches sequencer step duration
+        private List<RhythmicBounceSphere> _spheres   = new();
+        private List<PlatterSpinner>        _platters  = new();
+
+        public float BPM          => bpm;
+        public float MasterTimer  => _masterTimer;
+        public float BeatDuration => 60f / bpm;
 
         private void Awake()
         {
@@ -30,33 +33,62 @@ public float SixteenthDuration => 60f / (bpm * 4f); // matches sequencer step du
 
         private void Start()
         {
-            // find all rhythmic spheres in the scene
             RefreshSphereList();
         }
 
-private void Update()
-{
-    if (sequencer != null)
-        bpm = sequencer.BPM;
-
-    _masterTimer += Time.deltaTime;
-
-    // sync spheres on quarter note boundaries
-    float quarterNote = 60f / bpm;
-    if (_masterTimer >= quarterNote)
-    {
-        _masterTimer -= quarterNote;
-        foreach (var sphere in _spheres)
+        private void Update()
         {
-            if (sphere != null)
-                sphere.Resync(_masterTimer);
+            if (sequencer != null)
+                bpm = sequencer.BPM;
+
+            float quarterNote = 60f / bpm;
+
+            _masterTimer  += Time.deltaTime;
+            _quarterTimer += Time.deltaTime;
+
+            // fire on quarter note boundary
+            if (_quarterTimer >= quarterNote)
+            {
+                _quarterTimer -= quarterNote;
+                OnQuarterNote();
+            }
+
+            // sync bounce spheres every beat
+            if (_masterTimer >= quarterNote)
+            {
+                _masterTimer -= quarterNote;
+                foreach (var sphere in _spheres)
+                    if (sphere != null)
+                        sphere.Resync(_masterTimer);
+            }
         }
-    }
-}
+
+        private void OnQuarterNote()
+        {
+            // start any platters waiting for sync
+            foreach (var platter in _platters)
+            {
+                if (platter != null && platter.WaitingForSync)
+                    platter.StartNow();
+            }
+        }
+
+        public void RegisterPlatter(PlatterSpinner platter)
+        {
+            if (!_platters.Contains(platter))
+                _platters.Add(platter);
+        }
+
+        public void UnregisterPlatter(PlatterSpinner platter)
+        {
+            _platters.Remove(platter);
+        }
+
         public void RefreshSphereList()
         {
             _spheres.Clear();
-            _spheres.AddRange(FindObjectsByType<RhythmicBounceSphere>(FindObjectsSortMode.None));
+            _spheres.AddRange(
+                FindObjectsByType<RhythmicBounceSphere>(FindObjectsSortMode.None));
             foreach (var sphere in _spheres)
                 sphere.SetBPM(bpm);
         }
@@ -66,6 +98,8 @@ private void Update()
             bpm = newBpm;
             foreach (var sphere in _spheres)
                 sphere.SetBPM(bpm);
+            foreach (var platter in _platters)
+                platter.SetBPM(bpm);
         }
     }
 }

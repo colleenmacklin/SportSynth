@@ -5,6 +5,7 @@ public class SimpleController_UsingPlayerInput : MonoBehaviour
 {
     public float moveSpeed   = 5f;
     public float rotateSpeed = 0.1f;
+public float Pitch => m_Rotation.x;
 
     private Vector2 m_Rotation;
     private Vector2 m_Move;
@@ -36,13 +37,16 @@ public class SimpleController_UsingPlayerInput : MonoBehaviour
         transform.position += move * scaledMoveSpeed;
     }
 
-    private void Look(Vector2 rotate)
-    {
-        if (rotate.sqrMagnitude < 0.01)
-            return;
-        var scaledRotateSpeed = rotateSpeed * Time.deltaTime;
-        m_Rotation.y += rotate.x * scaledRotateSpeed;
-        m_Rotation.x  = Mathf.Clamp(m_Rotation.x - rotate.y * scaledRotateSpeed, -89, 89);
-        transform.localEulerAngles = m_Rotation;
-    }
+private void Look(Vector2 rotate)
+{
+    if (rotate.sqrMagnitude < 0.01)
+        return;
+
+    m_Rotation.y += rotate.x * rotateSpeed;
+    m_Rotation.x  = Mathf.Clamp(m_Rotation.x - rotate.y * rotateSpeed, -89, 89);
+
+    // apply Y rotation to the root transform, X rotation to camera only
+    transform.localRotation = Quaternion.Euler(0, m_Rotation.y, 0);
+}
+
 }

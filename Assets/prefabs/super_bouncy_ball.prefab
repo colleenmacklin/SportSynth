@@ -140,7 +140,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 2
 --- !u!114 &3936632802459219245
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -157,5 +157,5 @@ MonoBehaviour:
   maxCollisionVelocity: 10
   minDistance: 1
   maxDistance: 500
-  falloffCurve: 0.2
+  falloffCurve: 0.18
   collisionCooldown: 0.05

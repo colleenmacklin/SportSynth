@@ -54,16 +54,19 @@ public Sequence GetPattern(int index)
     if (index < 0 || index >= patterns.Count) return null;
     return patterns[index];
 }
-        private void Awake()
-        {
-            if (playOnAwake) Play();
-        }
-
+private void Awake()
+{
+    if (playOnAwake && patterns != null && patterns.Count > 0)
+        Play();
+}
         private void Update()
         {
-            if (!_playing) return;
-            if (patterns == null || patterns.Count == 0) return;
-
+    if (!_playing) return;
+    if (patterns == null || patterns.Count == 0)
+    {
+        _playing = false;
+        return;
+    }
             Sequence pattern = patterns[currentPatternIndex];
             if (pattern.steps == null || pattern.steps.Count == 0) return;
 
@@ -183,14 +186,19 @@ private void TriggerNoteOn(SequenceStep step, float velocity)
 
         // --- transport controls ---
 
-        public void Play()
-        {
-            if (_playing) return;
-            _playing     = true;
-            _currentStep = -1; // AdvanceStep will move to 0 immediately
-            _stepTimer   = GetStepDuration(patterns[currentPatternIndex], 0);
-        }
+public void Play()
+{
+    if (patterns == null || patterns.Count == 0)
+    {
+        Debug.LogWarning("Sequencer has no patterns — add at least one pattern before playing.");
+        return;
+    }
 
+    if (_playing) return;
+    _playing     = true;
+    _currentStep = -1;
+    _stepTimer   = GetStepDuration(patterns[currentPatternIndex], 0);
+}
         public void Stop()
         {
             _playing = false;

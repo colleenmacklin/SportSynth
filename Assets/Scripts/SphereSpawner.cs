@@ -26,6 +26,12 @@ namespace Synthic
         [SerializeField, Range(0f, 1f)]  private float capsLockSustain = 1f;
         [SerializeField, Range(0f, 5f)]  private float capsLockRelease = 0.5f;
 
+        [Header("Rhythmic Bounce")]
+[SerializeField] private bool  rhythmicBounce  = true;
+[SerializeField, Range(1, 16)] private int beatsPerCycle = 1;
+[SerializeField, Range(0f, 1f)] private float sphereBounciness = 0.8f;
+
+
         // note key layout - one octave, bottom row only
         private static readonly Dictionary<Key, Note.Name> NoteKeys =
             new Dictionary<Key, Note.Name>
@@ -51,10 +57,11 @@ namespace Synthic
         // track which frequencies are held in caps lock mode
         private readonly Dictionary<Key, float> _heldCapsLockNotes = new();
 
-        private void Awake()
-        {
-            SynthSphere.SetPlayerTransform(playerCamera.transform);
-        }
+private void Awake()
+{
+    SynthSphere.SetPlayerTransform(playerCamera.transform);
+    RhythmicSynthSphere.SetPlayerTransform(playerCamera.transform);
+}
 
         private void Update()
         {
@@ -144,54 +151,75 @@ else if (isUp && _heldNoteKeys.Contains(inputKey))
             }
         }
 
-        private void HandleSphereManagement()
-        {
-            bool shiftHeld = Keyboard.current.leftShiftKey.isPressed ||
-                             Keyboard.current.rightShiftKey.isPressed;
+private void HandleSphereManagement()
+{
+    if (Keyboard.current == null) return;
 
-            if (Keyboard.current.deleteKey.wasPressedThisFrame)
-            {
-                if (shiftHeld)
-                    ClearAllSpheres();
-                else
-                    ClearLastSphere();
-            }
-        }
+    bool shiftHeld = Keyboard.current.leftShiftKey.isPressed ||
+                     Keyboard.current.rightShiftKey.isPressed;
+
+    // on Mac, backspace = delete key, deleteKey = Fn+Delete
+    bool deletePressed = Keyboard.current.backspaceKey.wasPressedThisFrame;
+
+    if (deletePressed)
+    {
+        if (shiftHeld)
+            ClearAllSpheres();
+        else
+            ClearLastSphere();
+    }
+}
 
         private void SpawnSphere(float frequency)
-        {
-            if (spherePrefab == null || playerCamera == null) return;
+{
+    if (spherePrefab == null || playerCamera == null) return;
 
-            Vector3 spawnPosition = playerCamera.transform.position
-                                  + playerCamera.transform.forward * (sphereRadius * 2f + 0.1f);
+    Vector3 spawnPosition = playerCamera.transform.position
+                          + playerCamera.transform.forward * (sphereRadius * 2f + 0.1f);
 
-            GameObject sphere = Instantiate(spherePrefab, spawnPosition, Quaternion.identity);
-            sphere.transform.localScale = Vector3.one * sphereRadius * 2f;
+    GameObject sphere = Instantiate(spherePrefab, spawnPosition, Quaternion.identity);
+    sphere.transform.localScale = Vector3.one * sphereRadius * 2f;
 
-            var synthSphere = sphere.GetComponent<SynthSphere>();
-            if (synthSphere == null)
-                synthSphere = sphere.AddComponent<SynthSphere>();
+    if (rhythmicBounce)
+    {
+        // remove SynthSphere if present and add RhythmicSynthSphere
+        var existing = sphere.GetComponent<SynthSphere>();
+        if (existing != null) Destroy(existing);
 
-            synthSphere.Initialize(generator, frequency);
+        var rhythmicSphere = sphere.GetComponent<RhythmicSynthSphere>();
+        if (rhythmicSphere == null)
+            rhythmicSphere = sphere.AddComponent<RhythmicSynthSphere>();
 
-            // pass collision thresholds cleanly via Initialize overload
-            var minVelField = typeof(SynthSphere).GetField("minCollisionVelocity",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var maxVelField = typeof(SynthSphere).GetField("maxCollisionVelocity",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            minVelField?.SetValue(synthSphere, minCollisionVelocity);
-            maxVelField?.SetValue(synthSphere, maxCollisionVelocity);
+        rhythmicSphere.Initialize(generator, frequency, beatsPerCycle,
+                                  sphereBounciness, minCollisionVelocity,
+                                  maxCollisionVelocity);
+    }
+    else
+    {
+        var synthSphere = sphere.GetComponent<SynthSphere>();
+        if (synthSphere == null)
+            synthSphere = sphere.AddComponent<SynthSphere>();
 
-            var rb = sphere.GetComponent<Rigidbody>();
-            if (rb != null)
-            {
-                Vector3 throwDirection = playerCamera.transform.forward
-                                       + playerCamera.transform.up * throwArcAngle;
-                rb.linearVelocity = throwDirection.normalized * throwForce;
-            }
+        synthSphere.Initialize(generator, frequency);
 
-            _spawnedSpheres.Add(sphere);
-        }
+        var minVelField = typeof(SynthSphere).GetField("minCollisionVelocity",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        var maxVelField = typeof(SynthSphere).GetField("maxCollisionVelocity",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        minVelField?.SetValue(synthSphere, minCollisionVelocity);
+        maxVelField?.SetValue(synthSphere, maxCollisionVelocity);
+    }
+
+    var rb = sphere.GetComponent<Rigidbody>();
+    if (rb != null)
+    {
+        Vector3 throwDirection = playerCamera.transform.forward
+                               + playerCamera.transform.up * throwArcAngle;
+        rb.linearVelocity = throwDirection.normalized * throwForce;
+    }
+
+    _spawnedSpheres.Add(sphere);
+}
 
         private void ClearLastSphere()
         {
