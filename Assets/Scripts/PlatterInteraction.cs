@@ -8,6 +8,7 @@ namespace Synthic
         [SerializeField] private Camera    playerCamera;
         [SerializeField] private float     raycastRange = 5f;
         [SerializeField] private LayerMask interactableLayer;
+[SerializeField] private RhythmicMasterClock masterClock;
 
         [Header("Visual")]
         [SerializeField] private Color highlightColor = Color.cyan;
@@ -23,9 +24,10 @@ namespace Synthic
         {
             if (playerCamera == null || Keyboard.current == null) return;
 
-            DetectInteractable();
-            HandleInput();
-        }
+
+    DetectInteractable();
+    HandleInput();
+}
 
         private void DetectInteractable()
 {
@@ -49,23 +51,17 @@ namespace Synthic
 
     if (!Physics.Raycast(ray, out RaycastHit hit, raycastRange, interactableLayer))
     {
-        Debug.Log("Raycast hit nothing");
+        //Debug.Log("Raycast hit nothing");
         return;
     }
-
-    Debug.Log($"Raycast hit: {hit.collider.gameObject.name} on layer: {hit.collider.gameObject.layer}");
 
     float distance = Vector3.Distance(
         playerCamera.transform.position, hit.point);
 
-    Debug.Log($"Distance: {distance}");
-
     var platter = hit.collider.GetComponentInParent<PlatterSpinner>();
-    Debug.Log($"Platter found: {platter != null}");
             // check for BPM slider
 
     var slider = hit.collider.GetComponentInParent<BPMSlider>();
-    Debug.Log($"Slider found: {slider != null}");
             if (platter != null && distance <= platter.InteractionRange)
             {
                 _lookedAtPlatter = platter;
@@ -99,36 +95,34 @@ namespace Synthic
             }
         }
 
-        private void HandleInput()
-        {
-            bool shiftHeld = Keyboard.current.leftShiftKey.isPressed ||
-                             Keyboard.current.rightShiftKey.isPressed;
+private void HandleInput()
+{
+    bool shiftHeld = Keyboard.current.leftShiftKey.isPressed ||
+                     Keyboard.current.rightShiftKey.isPressed;
 
-            // E key - toggle platter
-            if (Keyboard.current.eKey.wasPressedThisFrame && _lookedAtPlatter != null)
-                _lookedAtPlatter.Toggle();
+    // E key - toggle platter only when looking at one
+    if (Keyboard.current.eKey.wasPressedThisFrame && _lookedAtPlatter != null)
+        _lookedAtPlatter.Toggle();
 
-            // BPM adjustment - works on both platter and slider
-            bool hasTarget = _lookedAtPlatter != null || _lookedAtSlider != null;
-            if (!hasTarget) return;
+    // BPM adjustment - works globally from anywhere
+    float increment = shiftHeld ? 10f : 1f;
 
-            float increment = shiftHeld ? 10f : 1f;
+    if (Keyboard.current.minusKey.wasPressedThisFrame)
+        AdjustBPM(-increment);
 
-            if (Keyboard.current.minusKey.wasPressedThisFrame)
-                AdjustBPM(-increment);
+    if (Keyboard.current.equalsKey.wasPressedThisFrame)
+        AdjustBPM(increment);
+}
 
-            if (Keyboard.current.equalsKey.wasPressedThisFrame)
-                AdjustBPM(increment);
-        }
-
-        private void AdjustBPM(float amount)
-        {
-            // adjust via slider if available, otherwise directly via platter
-            if (_lookedAtSlider != null)
-                _lookedAtSlider.IncrementBPM(amount);
-            else if (_lookedAtPlatter != null)
-                _lookedAtPlatter.SetBPM(
-                    Mathf.Clamp(_lookedAtPlatter.BPM + amount, 60f, 180f));
-        }
+private void AdjustBPM(float amount)
+{
+    if (masterClock == null)
+    {
+        Debug.Log("AdjustBPM: masterClock is null");
+        return;
+    }
+    masterClock.SetBPM(Mathf.Clamp(masterClock.BPM + amount, 60f, 180f));
+    Debug.Log($"BPM set to {masterClock.BPM}");
+}
     }
 }

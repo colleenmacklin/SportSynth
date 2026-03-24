@@ -19,17 +19,17 @@ private void Update()
 {
     if (slider == null)
     {
-        Debug.Log("BPMSliderTrack: slider is null");
+        //Debug.Log("BPMSliderTrack: slider is null");
         return;
     }
 
     if (bpmLabel == null)
     {
-        Debug.Log("BPMSliderTrack: bpmLabel is null");
+        //Debug.Log("BPMSliderTrack: bpmLabel is null");
         return;
     }
 
-    Debug.Log($"BPM: {slider.CurrentBPM}");
+    //Debug.Log($"BPM: {slider.CurrentBPM}");
     bpmLabel.text = $"{Mathf.RoundToInt(slider.CurrentBPM)} BPM";
 }
     }

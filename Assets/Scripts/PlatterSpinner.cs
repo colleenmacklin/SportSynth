@@ -35,13 +35,13 @@ public void SetBPM(float newBpm)
 {
     bpm = Mathf.Clamp(newBpm, 60f, 180f);
 }
-        private void Awake()
-        {
-            // register with master clock for quarter note callbacks
-            if (RhythmicMasterClock.Instance != null)
-                RhythmicMasterClock.Instance.RegisterPlatter(this);
-        }
-
+private void Start()
+{
+    if (RhythmicMasterClock.Instance != null)
+        RhythmicMasterClock.Instance.RegisterPlatter(this);
+    else
+        Debug.LogWarning($"PlatterSpinner {gameObject.name}: RhythmicMasterClock instance not found");
+}
         private void OnDestroy()
         {
             if (RhythmicMasterClock.Instance != null)

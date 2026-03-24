@@ -7,17 +7,16 @@ namespace Synthic
     {
         public static RhythmicMasterClock Instance { get; private set; }
 
-        [SerializeField] private float     bpm       = 120f;
+        [SerializeField] private float bpm = 120f;
         [SerializeField] private Sequencer sequencer;
 
         private float _masterTimer    = 0f;
         private float _quarterTimer   = 0f;
-        private bool  _lastQuarterFired = false;
 
         private List<RhythmicBounceSphere> _spheres   = new();
-        private List<PlatterSpinner>        _platters  = new();
+        private List<PlatterSpinner> _platters  = new();
 
-        public float BPM          => bpm;
+        public float BPM => bpm;
         public float MasterTimer  => _masterTimer;
         public float BeatDuration => 60f / bpm;
 
@@ -38,10 +37,11 @@ namespace Synthic
 
         private void Update()
         {
-            if (sequencer != null)
-                bpm = sequencer.BPM;
+                // push master clock BPM to sequencer instead of pulling
+    if (sequencer != null)
+        sequencer.BPM = bpm;
 
-            float quarterNote = 60f / bpm;
+    float quarterNote = 60f / bpm;
 
             _masterTimer  += Time.deltaTime;
             _quarterTimer += Time.deltaTime;
@@ -93,13 +93,15 @@ namespace Synthic
                 sphere.SetBPM(bpm);
         }
 
-        public void SetBPM(float newBpm)
-        {
-            bpm = newBpm;
-            foreach (var sphere in _spheres)
-                sphere.SetBPM(bpm);
-            foreach (var platter in _platters)
-                platter.SetBPM(bpm);
-        }
+public void SetBPM(float newBpm)
+{
+    bpm = Mathf.Clamp(newBpm, 60f, 180f);
+    if (sequencer != null)
+        sequencer.BPM = bpm;
+    foreach (var sphere in _spheres)
+        sphere.SetBPM(bpm);
+    foreach (var platter in _platters)
+        platter.SetBPM(bpm);
+}
     }
 }
