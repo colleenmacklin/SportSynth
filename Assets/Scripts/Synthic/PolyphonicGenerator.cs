@@ -128,6 +128,13 @@ private delegate void BurstVoiceDelegate(
 
         private void Update()
         {
+                int activeVoices = 0;
+    for (int i = 0; i < VoiceCount; i++)
+        if (_voices[i].stage != EnvelopeStage.Off) activeVoices++;
+    
+    if (activeVoices > 0)
+        //Debug.Log($"{gameObject.name} active voices: {activeVoices}");
+
             if (waveform != _currentWaveform)
                 SetWaveform(waveform);
 
@@ -187,6 +194,7 @@ private delegate void BurstVoiceDelegate(
 
         public void NoteOn(float frequency, float velocity = 1f)
 {
+    
     int noteId = Note.GetId(frequency);
 
     for (int i = 0; i < VoiceCount; i++)
@@ -234,54 +242,10 @@ _voices[voiceIndex] = new SynthVoice
     startOrder       = _voiceOrder++
 };
 }
-public void ForceNoteOn(float frequency, float velocity = 1f)
+public void ForceNoteOn(float frequency, float velocity, int ownerId)
 {
-    int voiceIndex = -1;
+    //Debug.Log($"ForceNoteOn: {gameObject.name} freq={frequency} vel={velocity}");
 
-    // find a free voice
-    for (int i = 0; i < VoiceCount; i++)
-    {
-        if (_voices[i].stage == EnvelopeStage.Off)
-        {
-            voiceIndex = i;
-            break;
-        }
-    }
-
-    // no free voice - steal oldest
-    if (voiceIndex == -1)
-    {
-        int oldestOrder = int.MaxValue;
-        for (int i = 0; i < VoiceCount; i++)
-        {
-            if (_voices[i].startOrder < oldestOrder)
-            {
-                oldestOrder = _voices[i].startOrder;
-                voiceIndex  = i;
-            }
-        }
-    }
-
-    _voices[voiceIndex] = new SynthVoice
-    {
-        frequency         = frequency,
-        phase             = 0f,
-        phase2            = 0f,
-        freqLfoPhase      = 0f,
-        ampLfoPhase       = 0f,
-        envelopePosition  = 0f,
-        currentAmplitude  = 0f,
-        smoothedAmplitude = 0f,
-        velocity          = Mathf.Clamp01(velocity),
-        stage             = EnvelopeStage.Attack,
-        noteId            = Note.GetId(frequency),
-        startOrder        = _voiceOrder++
-    };
-}
-
-// add to PolyphonicGenerator.cs
-public void ForceNoteOn(float frequency, float velocity, float pan)
-{
     int voiceIndex = -1;
 
     for (int i = 0; i < VoiceCount; i++)
@@ -317,7 +281,6 @@ public void ForceNoteOn(float frequency, float velocity, float pan)
         currentAmplitude  = 0f,
         smoothedAmplitude = 0f,
         velocity          = Mathf.Clamp01(velocity),
-        pan               = Mathf.Clamp(pan, -1f, 1f),
         stage             = EnvelopeStage.Attack,
         noteId            = Note.GetId(frequency),
         startOrder        = _voiceOrder++
@@ -338,8 +301,14 @@ public void ForceNoteOn(float frequency, float velocity, float pan)
             }
         }
 
-        protected override void ProcessBuffer(ref SynthBuffer buffer)
-        {
+protected override void ProcessBuffer(ref SynthBuffer buffer)
+{
+    if (_activeWave == null)
+    {
+        // this is the bug - activeWave is null on second instance
+        return;
+    }
+
             if (_voiceBuffer == null || !_voiceBuffer.Allocated)
                 _voiceBuffer = SynthBuffer.Construct(buffer.Length);
             if (_voiceBuffer.Data.Length != buffer.Length)
@@ -384,8 +353,13 @@ private static float ComputeEnvelope(ref SynthVoice voice, int sampleRate,
                                      float attack, float decay,
                                      float sustain, float release,
                                      float smoothingFactor)
-
 {
+    // guard against divide by zero
+    attack  = Mathf.Max(attack,  0.001f);
+    decay   = Mathf.Max(decay,   0.001f);
+    release = Mathf.Max(release, 0.001f);
+    sampleRate = Mathf.Max(sampleRate, 1);
+
     float amplitude = voice.currentAmplitude;
 
     switch (voice.stage)

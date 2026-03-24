@@ -120,6 +120,9 @@ private void Update()
 
         private void OnCollisionEnter(Collision collision)
         {
+                // skip if not yet initialized
+    if (_generator == null) return;
+
             // ignore sphere-sphere collisions for rhythm sync
             bool isGround = IsGroundCollision(collision);
 
@@ -177,14 +180,20 @@ private void Update()
             return false;
         }
 
-        public void PlayNote(float velocity)
-        {
-            if (_generator == null) return;
-            float distanceScale = GetDistanceScale();
-            _generator.ForceNoteOn(_frequency, velocity * distanceScale,
-                                   gameObject.GetInstanceID());
-        }
+public void PlayNote(float velocity)
+{
+    if (_generator == null)
+    {
+        //Debug.Log("RhythmicSynthSphere: generator is null");
+        return;
+    }
+    float distanceScale = GetDistanceScale();
+    float finalVelocity = velocity * distanceScale;
 
+    //Debug.Log($"PlayNote: vel={velocity} distanceScale={distanceScale} final={finalVelocity}");
+    _generator.ForceNoteOn(_frequency, finalVelocity, gameObject.GetInstanceID());
+    //_generator.ForceNoteOn(_frequency, velocity * distanceScale, gameObject.GetInstanceID());
+}
         private float GetDistanceScale()
         {
             if (_playerTransform == null) return 1f;

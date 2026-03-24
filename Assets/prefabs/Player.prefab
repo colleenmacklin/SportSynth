@@ -148,9 +148,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebb27f91cd2974e0aaa192554562b4c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  generator: {fileID: 0}
+  keyGenerator: {fileID: 0}
+  sphereGenerator: {fileID: 0}
   noteInput: {fileID: 0}
-  spherePrefab: {fileID: 0}
+  spherePrefab: {fileID: 1292374174130140163, guid: bbc08f9d2ed7548fcbee8855eed5cf80, type: 3}
   playerCamera: {fileID: 6799767704499439259}
   throwForce: 10
   throwArcAngle: 1
@@ -323,6 +324,7 @@ MonoBehaviour:
   interactableLayer:
     serializedVersion: 2
     m_Bits: 8
-  highlightColor: {r: 0, g: 1, b: 1, a: 1}
+  masterClock: {fileID: 0}
+  highlightColor: {r: 0.1, g: 0.1, b: 0.1, a: 0}
   waitingColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   stoppedColor: {r: 1, g: 0, b: 0, a: 1}

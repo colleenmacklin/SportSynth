@@ -7,7 +7,8 @@ namespace Synthic
     public class SphereSpawner : MonoBehaviour
     {
         [Header("References")]
-        [SerializeField] private PolyphonicGenerator generator;
+        [SerializeField] private PolyphonicGenerator keyGenerator;    // for keyboard/caps lock
+        [SerializeField] private PolyphonicGenerator sphereGenerator; // for spawned spheres
         [SerializeField] private NoteInput           noteInput;
         [SerializeField] private GameObject          spherePrefab;
         [SerializeField] private Camera              playerCamera;
@@ -27,12 +28,10 @@ namespace Synthic
         [SerializeField, Range(0f, 5f)]  private float capsLockRelease = 0.5f;
 
         [Header("Rhythmic Bounce")]
-[SerializeField] private bool  rhythmicBounce  = true;
-[SerializeField, Range(1, 16)] private int beatsPerCycle = 1;
-[SerializeField, Range(0f, 1f)] private float sphereBounciness = 0.8f;
+        [SerializeField] private bool  rhythmicBounce   = true;
+        [SerializeField, Range(1, 16)] private int   beatsPerCycle   = 1;
+        [SerializeField, Range(0f, 1f)] private float sphereBounciness = 0.8f;
 
-
-        // note key layout - one octave, bottom row only
         private static readonly Dictionary<Key, Note.Name> NoteKeys =
             new Dictionary<Key, Note.Name>
         {
@@ -50,23 +49,20 @@ namespace Synthic
             { Key.M, Note.Name.B      },
         };
 
-        private int                    _currentOctave  = 3;
-        private readonly List<GameObject> _spawnedSpheres = new();
-        private readonly HashSet<Key>     _heldNoteKeys   = new();
-
-        // track which frequencies are held in caps lock mode
+        private int                         _currentOctave      = 3;
+        private readonly List<GameObject>   _spawnedSpheres     = new();
+        private readonly HashSet<Key>       _heldNoteKeys       = new();
         private readonly Dictionary<Key, float> _heldCapsLockNotes = new();
 
-private void Awake()
-{
-    SynthSphere.SetPlayerTransform(playerCamera.transform);
-    RhythmicSynthSphere.SetPlayerTransform(playerCamera.transform);
-}
+        private void Awake()
+        {
+            SynthSphere.SetPlayerTransform(playerCamera.transform);
+            RhythmicSynthSphere.SetPlayerTransform(playerCamera.transform);
+        }
 
         private void Update()
         {
             if (Keyboard.current == null) return;
-
             HandleOctaveKeys();
             HandleNoteKeys();
             HandleSphereManagement();
@@ -74,7 +70,6 @@ private void Awake()
 
         private void HandleOctaveKeys()
         {
-            // comma = octave down, period = octave up
             if (Keyboard.current.commaKey.wasPressedThisFrame)
                 _currentOctave = Mathf.Max(0, _currentOctave - 1);
             if (Keyboard.current.periodKey.wasPressedThisFrame)
@@ -96,43 +91,41 @@ private void Awake()
 
                 if (capsLockOn)
                 {
-                    // caps lock mode - hold note, no sphere spawning
                     if (isDown && !_heldNoteKeys.Contains(inputKey))
-{
-    _heldNoteKeys.Add(inputKey);
-    _heldCapsLockNotes[inputKey] = frequency;
+                    {
+                        _heldNoteKeys.Add(inputKey);
+                        _heldCapsLockNotes[inputKey] = frequency;
 
-    // save current ADSR before overriding
-    generator.SaveADSR();
+                        // save ADSR before overriding - only on first key down
+                        keyGenerator.SaveADSR();
+                        keyGenerator.SetAttack(capsLockAttack);
+                        keyGenerator.SetSustain(capsLockSustain);
+                        keyGenerator.SetRelease(capsLockRelease);
+                        keyGenerator.NoteOn(frequency, 0.8f);
+                    }
+                    else if (isUp && _heldNoteKeys.Contains(inputKey))
+                    {
+                        _heldNoteKeys.Remove(inputKey);
+                        if (_heldCapsLockNotes.TryGetValue(inputKey, out float heldFreq))
+                        {
+                            keyGenerator.NoteOff(heldFreq);
+                            _heldCapsLockNotes.Remove(inputKey);
+                        }
 
-    generator.SetAttack(capsLockAttack);
-    generator.SetSustain(capsLockSustain);
-    generator.SetRelease(capsLockRelease);
-    generator.NoteOn(frequency, 0.8f);
-}
-else if (isUp && _heldNoteKeys.Contains(inputKey))
-{
-    _heldNoteKeys.Remove(inputKey);
-    if (_heldCapsLockNotes.TryGetValue(inputKey, out float heldFreq))
-    {
-        generator.NoteOff(heldFreq);
-        _heldCapsLockNotes.Remove(inputKey);
-    }
-
-    // restore ADSR only when all caps lock notes are released
-    if (_heldCapsLockNotes.Count == 0)
-        generator.RestoreADSR();
-}
+                        // restore ADSR only when all caps lock notes are released
+                        if (_heldCapsLockNotes.Count == 0)
+                            keyGenerator.RestoreADSR();
+                    }
                 }
                 else
                 {
-                    // normal mode - release any held caps lock notes first
+                    // release any held caps lock notes if caps lock was just turned off
                     if (_heldNoteKeys.Contains(inputKey) && isUp)
                     {
                         _heldNoteKeys.Remove(inputKey);
                         if (_heldCapsLockNotes.TryGetValue(inputKey, out float heldFreq))
                         {
-                            generator.NoteOff(heldFreq);
+                            keyGenerator.NoteOff(heldFreq);
                             _heldCapsLockNotes.Remove(inputKey);
                         }
                     }
@@ -151,26 +144,25 @@ else if (isUp && _heldNoteKeys.Contains(inputKey))
             }
         }
 
-private void HandleSphereManagement()
-{
-    if (Keyboard.current == null) return;
+        private void HandleSphereManagement()
+        {
+            if (Keyboard.current == null) return;
 
-    bool shiftHeld = Keyboard.current.leftShiftKey.isPressed ||
-                     Keyboard.current.rightShiftKey.isPressed;
+            bool shiftHeld = Keyboard.current.leftShiftKey.isPressed ||
+                             Keyboard.current.rightShiftKey.isPressed;
 
-    // on Mac, backspace = delete key, deleteKey = Fn+Delete
-    bool deletePressed = Keyboard.current.backspaceKey.wasPressedThisFrame;
+            bool deletePressed = Keyboard.current.backspaceKey.wasPressedThisFrame;
 
-    if (deletePressed)
-    {
-        if (shiftHeld)
-            ClearAllSpheres();
-        else
-            ClearLastSphere();
-    }
-}
+            if (deletePressed)
+            {
+                if (shiftHeld)
+                    ClearAllSpheres();
+                else
+                    ClearLastSphere();
+            }
+        }
 
-        private void SpawnSphere(float frequency)
+private void SpawnSphere(float frequency)
 {
     if (spherePrefab == null || playerCamera == null) return;
 
@@ -180,9 +172,12 @@ private void HandleSphereManagement()
     GameObject sphere = Instantiate(spherePrefab, spawnPosition, Quaternion.identity);
     sphere.transform.localScale = Vector3.one * sphereRadius * 2f;
 
+    // disable collider until initialized
+    var col = sphere.GetComponent<Collider>();
+    if (col != null) col.enabled = false;
+
     if (rhythmicBounce)
     {
-        // remove SynthSphere if present and add RhythmicSynthSphere
         var existing = sphere.GetComponent<SynthSphere>();
         if (existing != null) Destroy(existing);
 
@@ -190,7 +185,7 @@ private void HandleSphereManagement()
         if (rhythmicSphere == null)
             rhythmicSphere = sphere.AddComponent<RhythmicSynthSphere>();
 
-        rhythmicSphere.Initialize(generator, frequency, beatsPerCycle,
+        rhythmicSphere.Initialize(sphereGenerator, frequency, beatsPerCycle,
                                   sphereBounciness, minCollisionVelocity,
                                   maxCollisionVelocity);
     }
@@ -200,7 +195,7 @@ private void HandleSphereManagement()
         if (synthSphere == null)
             synthSphere = sphere.AddComponent<SynthSphere>();
 
-        synthSphere.Initialize(generator, frequency);
+        synthSphere.Initialize(sphereGenerator, frequency);
 
         var minVelField = typeof(SynthSphere).GetField("minCollisionVelocity",
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -209,6 +204,9 @@ private void HandleSphereManagement()
         minVelField?.SetValue(synthSphere, minCollisionVelocity);
         maxVelField?.SetValue(synthSphere, maxCollisionVelocity);
     }
+
+    // re-enable collider now that generator is assigned
+    if (col != null) col.enabled = true;
 
     var rb = sphere.GetComponent<Rigidbody>();
     if (rb != null)
@@ -220,7 +218,6 @@ private void HandleSphereManagement()
 
     _spawnedSpheres.Add(sphere);
 }
-
         private void ClearLastSphere()
         {
             if (_spawnedSpheres.Count == 0) return;

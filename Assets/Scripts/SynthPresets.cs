@@ -35,7 +35,7 @@ namespace Synthic
 
     public class SynthPresets : MonoBehaviour
     {
-        [SerializeField] private PolyphonicGenerator generator;
+[SerializeField] private PolyphonicGenerator generator; // point this to keyGenerator
         [SerializeField] private List<SynthPreset>   presets = new();
 
         private int _currentPresetIndex = -1;
@@ -187,7 +187,7 @@ namespace Synthic
             // LFOs - find and update existing LFOs on the generator
             ApplyLFOSettings(preset);
 
-            Debug.Log($"Preset {index + 1} applied: {preset.name}");
+            //Debug.Log($"Preset {index + 1} applied: {preset.name}");
         }
 
         private void ApplyLFOSettings(SynthPreset preset)

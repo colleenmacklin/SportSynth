@@ -183,6 +183,7 @@ Transform:
   m_Children:
   - {fileID: 690584651}
   - {fileID: 1761403936}
+  - {fileID: 1112441958}
   - {fileID: 1308920498}
   - {fileID: 2095294469}
   - {fileID: 1296313693}
@@ -3269,6 +3270,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Synthic.SynthOut
   providers:
   - {fileID: 1761403935}
+  - {fileID: 1112441959}
 --- !u!1 &803031488
 GameObject:
   m_ObjectHideFlags: 0
@@ -4222,6 +4224,61 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &1112441957
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1112441958}
+  - component: {fileID: 1112441959}
+  m_Layer: 0
+  m_Name: KeyGenerator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1112441958
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1112441957}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 475.5863, y: -0.5, z: 4.96511}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 140491219}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1112441959
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1112441957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d27d7c436b52a48f187380feb4c11006, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Synthic.PolyphonicGenerator
+  waveform: 0
+  masterAmplitude: 0.5
+  envelope:
+    attack: 0.01
+    decay: 0.1
+    sustain: 0.111
+    release: 0.88
+  lfos: []
+  unisonDetune: 10
+  unisonSpread: 0.5
+  smoothingFactor: 0.05
 --- !u!1 &1128270725
 GameObject:
   m_ObjectHideFlags: 0
@@ -7250,7 +7307,7 @@ GameObject:
   - component: {fileID: 1761403936}
   - component: {fileID: 1761403935}
   m_Layer: 0
-  m_Name: polyphonicGenerator
+  m_Name: SphereGenerator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7269,7 +7326,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Synthic.PolyphonicGenerator
   waveform: 1
-  masterAmplitude: 1
+  masterAmplitude: 0.5
   envelope:
     attack: 0.01
     decay: 0.1
@@ -7798,7 +7855,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c7a56e04fcd2439aba012c433964f93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Synthic.SynthPresets
-  generator: {fileID: 1761403935}
+  generator: {fileID: 1112441959}
   presets: []
 --- !u!4 &2095294469
 Transform:
@@ -7864,17 +7921,17 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6682410647521162999, guid: 9d2a5e7edb9764987b9814d9e5decc98, type: 3}
-      propertyPath: generator
-      value: 
-      objectReference: {fileID: 1761403935}
-    - target: {fileID: 6682410647521162999, guid: 9d2a5e7edb9764987b9814d9e5decc98, type: 3}
       propertyPath: noteInput
       value: 
       objectReference: {fileID: 1308920499}
     - target: {fileID: 6682410647521162999, guid: 9d2a5e7edb9764987b9814d9e5decc98, type: 3}
-      propertyPath: spherePrefab
+      propertyPath: keyGenerator
       value: 
-      objectReference: {fileID: 1292374174130140163, guid: bbc08f9d2ed7548fcbee8855eed5cf80, type: 3}
+      objectReference: {fileID: 1112441959}
+    - target: {fileID: 6682410647521162999, guid: 9d2a5e7edb9764987b9814d9e5decc98, type: 3}
+      propertyPath: sphereGenerator
+      value: 
+      objectReference: {fileID: 1761403935}
     - target: {fileID: 7920106816385648394, guid: 9d2a5e7edb9764987b9814d9e5decc98, type: 3}
       propertyPath: m_Name
       value: Player
@@ -7883,22 +7940,6 @@ PrefabInstance:
       propertyPath: masterClock
       value: 
       objectReference: {fileID: 1296313692}
-    - target: {fileID: 8269330622605307108, guid: 9d2a5e7edb9764987b9814d9e5decc98, type: 3}
-      propertyPath: highlightColor.a
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8269330622605307108, guid: 9d2a5e7edb9764987b9814d9e5decc98, type: 3}
-      propertyPath: highlightColor.b
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8269330622605307108, guid: 9d2a5e7edb9764987b9814d9e5decc98, type: 3}
-      propertyPath: highlightColor.g
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8269330622605307108, guid: 9d2a5e7edb9764987b9814d9e5decc98, type: 3}
-      propertyPath: highlightColor.r
-      value: 0.1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

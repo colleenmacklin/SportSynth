@@ -66,7 +66,7 @@ namespace Synthic
         {
             if (_generator == null) return;
             float distanceScale = GetDistanceScale();
-            _generator.ForceNoteOn(_frequency, velocity * distanceScale);
+    _generator.ForceNoteOn(_frequency, velocity, gameObject.GetInstanceID());
         }
 /*
 private float GetDistanceScale()
