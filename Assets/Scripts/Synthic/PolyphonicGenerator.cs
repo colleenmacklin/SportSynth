@@ -262,22 +262,31 @@ public void ForceNoteOn(float frequency, float velocity = 1f)
         }
     }
 
+    // preserve oscillator and LFO phase from the stolen voice so the
+    // waveform continues without a discontinuity (eliminates click on retrigger)
+    float prevPhase      = _voices[voiceIndex].phase;
+    float prevPhase2     = _voices[voiceIndex].phase2;
+    float prevFreqLfo    = _voices[voiceIndex].freqLfoPhase;
+    float prevAmpLfo     = _voices[voiceIndex].ampLfoPhase;
+    float prevSmoothed   = _voices[voiceIndex].smoothedAmplitude;
+
     _voices[voiceIndex] = new SynthVoice
     {
         frequency         = frequency,
-        phase             = 0f,
-        phase2            = 0f,
-        freqLfoPhase      = 0f,
-        ampLfoPhase       = 0f,
-        envelopePosition  = 0f,
-        currentAmplitude  = 0f,
-        smoothedAmplitude = 0f,
+        phase             = prevPhase,        // continue from current phase
+        phase2            = prevPhase2,
+        freqLfoPhase      = prevFreqLfo,      // continue LFO sweep
+        ampLfoPhase       = prevAmpLfo,
+        envelopePosition  = 0f,               // restart envelope only
+        currentAmplitude  = prevSmoothed,     // start from current level, not zero
+        smoothedAmplitude = prevSmoothed,
         velocity          = Mathf.Clamp01(velocity),
         stage             = EnvelopeStage.Attack,
         noteId            = Note.GetId(frequency),
         startOrder        = _voiceOrder++
     };
 }
+
 
 // add to PolyphonicGenerator.cs
 public void ForceNoteOn(float frequency, float velocity, float pan)
@@ -305,17 +314,22 @@ public void ForceNoteOn(float frequency, float velocity, float pan)
             }
         }
     }
+float prevPhase      = _voices[voiceIndex].phase;
+    float prevPhase2     = _voices[voiceIndex].phase2;
+    float prevFreqLfo    = _voices[voiceIndex].freqLfoPhase;
+    float prevAmpLfo     = _voices[voiceIndex].ampLfoPhase;
+    float prevSmoothed   = _voices[voiceIndex].smoothedAmplitude;
 
     _voices[voiceIndex] = new SynthVoice
     {
         frequency         = frequency,
-        phase             = 0f,
-        phase2            = 0f,
-        freqLfoPhase      = 0f,
-        ampLfoPhase       = 0f,
+        phase             = prevPhase,
+        phase2            = prevPhase2,
+        freqLfoPhase      = prevFreqLfo,
+        ampLfoPhase       = prevAmpLfo,
         envelopePosition  = 0f,
-        currentAmplitude  = 0f,
-        smoothedAmplitude = 0f,
+        currentAmplitude  = prevSmoothed,
+        smoothedAmplitude = prevSmoothed,
         velocity          = Mathf.Clamp01(velocity),
         pan               = Mathf.Clamp(pan, -1f, 1f),
         stage             = EnvelopeStage.Attack,
@@ -323,6 +337,10 @@ public void ForceNoteOn(float frequency, float velocity, float pan)
         startOrder        = _voiceOrder++
     };
 }
+// ── NOTE on NoteOn (non-force version) ───────────────────────────────────────
+// NoteOn skips if the note is already playing, so it never steals — no change
+// needed there. Only ForceNoteOn steals voices and needs the phase preservation.
+
         public void NoteOff(float frequency)
         {
             int noteId = Note.GetId(frequency);
