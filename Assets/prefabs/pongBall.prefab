@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 4472097017041427597}
   - component: {fileID: 6857205162569276820}
   - component: {fileID: 2999451252480232180}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: pongBall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -142,7 +142,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 1
+  m_CollisionDetection: 0
 --- !u!114 &4472097017041427597
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -168,7 +168,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3664799998001200817}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ab7e7c51646394f56a35796cb4743eb6, type: 3}
   m_Name: 

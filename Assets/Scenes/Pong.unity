@@ -335,6 +335,63 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &514098562
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1952536848073209519, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1952536848073209519, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1952536848073209519, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1952536848073209519, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1952536848073209519, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1952536848073209519, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1952536848073209519, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1952536848073209519, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1952536848073209519, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1952536848073209519, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3664799998001200817, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
+      propertyPath: m_Name
+      value: pongBall
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
 --- !u!1 &683655148
 GameObject:
   m_ObjectHideFlags: 0
@@ -569,11 +626,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!1 &979034346 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3664799998001200817, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
-  m_PrefabInstance: {fileID: 1504334248437595362}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1051430608
 GameObject:
   m_ObjectHideFlags: 0
@@ -607,7 +659,7 @@ MonoBehaviour:
   rightPaddle: {fileID: 1104496203}
   leftGenerator: {fileID: 1803985201}
   rightGenerator: {fileID: 1348540125}
-  ballPrefab: {fileID: 979034346}
+  ballPrefab: {fileID: 1491286970}
   launchSpeed: 12
   launchSpread: 8
   ballRadius: 0.2
@@ -1149,6 +1201,11 @@ MonoBehaviour:
   arenaHalfHeight: 5
   wallThickness: 0.3
   autoBuildArena: 1
+--- !u!1 &1491286970 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3664799998001200817, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
+  m_PrefabInstance: {fileID: 514098562}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1574855567
 GameObject:
   m_ObjectHideFlags: 0
@@ -1559,21 +1616,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Synthic.PolyphonicGenerator
   waveform: 0
-  masterAmplitude: 0.5
+  masterAmplitude: 0.2
   envelope:
-    attack: 0.12
+    attack: 0.3
     decay: 0.2
     sustain: 0
     release: 0.5
   lfos:
-  - lfoTarget: 1
-    waveform: 0
-    rate: 0.1
-    depth: 0.15
-    restingLevel: 0.5
-  unisonDetune: 8
-  unisonSpread: 0.4
-  smoothingFactor: 0.02
+  - lfoTarget: 0
+    waveform: 1
+    rate: 0
+    depth: 0.09
+    restingLevel: 0.06
+  unisonDetune: 0
+  unisonSpread: 0
+  smoothingFactor: 0.03
 --- !u!114 &1803985202
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1840,63 +1897,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &1504334248437595362
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1952536848073209519, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -7
-      objectReference: {fileID: 0}
-    - target: {fileID: 1952536848073209519, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1952536848073209519, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1952536848073209519, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1952536848073209519, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1952536848073209519, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1952536848073209519, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1952536848073209519, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1952536848073209519, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1952536848073209519, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3664799998001200817, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
-      propertyPath: m_Name
-      value: pongBall
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: f8f186fa17f0f44bc86e648881df1b7d, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -1908,7 +1908,7 @@ SceneRoots:
   - {fileID: 955550081}
   - {fileID: 683655152}
   - {fileID: 1104496202}
-  - {fileID: 1504334248437595362}
   - {fileID: 231571105}
   - {fileID: 2048421726}
   - {fileID: 2135744921}
+  - {fileID: 514098562}

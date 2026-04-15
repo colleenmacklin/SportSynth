@@ -154,7 +154,11 @@ namespace Synthic
             PongPaddle paddle = isLeft ? leftPaddle : rightPaddle;
             PolyphonicGenerator gen = isLeft ? leftGenerator : rightGenerator;
 
-            if (paddle == null || gen == null || ballPrefab == null) return;
+            if (paddle == null || gen == null || ballPrefab == null)
+            {
+                Debug.LogWarning($"SpawnBall aborted — paddle={paddle}, gen={gen}, ballPrefab={ballPrefab}");
+                return;
+            }
 
             float xSign  = isLeft ? 1f : -1f;
             Vector3 pos  = paddle.transform.position
